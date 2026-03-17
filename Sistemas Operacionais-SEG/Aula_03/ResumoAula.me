@@ -1,0 +1,55 @@
+Exercicio 4 
+Copile e execute o programa e responda:
+
+- Qual é o papel da função fork() nesse programa?
+R: O papel dela é duplicar o numero de processos ocorrendo ao mesmo tempo do mesmo código 
+
+- O que acontece quando execlp() é executado:
+R:
+
+- Porque o comando ls aparece na saida?
+R:
+
+- Remova o wait(null). execute e descreva a saida?
+R:
+
+==============================
+
+Exercicio 6
+Copile e execute o programa varias vezes e responda:
+
+1 - Quantos processos existirão após a chamada fork()?
+2 Processos
+
+2 - Quantas vezes a linha "Linha em comum" será exibida?
+2 vezes, 1 para cada processos
+
+3 - A ordem as mensagem é sempre a mesma? Justifique
+Não, pois como os processos são executados de forma separada, eles não tem um tempo determinado, podendo ocorres de 3 formas
+
+
+4 - Exploque por que diferentes execuções do programa podem gerar saidas diferentes?
+Porque dependendo da ordem que executa pode imprimir conteudos em ordem diferentes
+
+
+5 - Qual o conceito de sistemas operacionais está sendo demonstrado?
+Multiprocessamento
+
+6 - Se tivessemos um escalonador qual seria a sequencia atendaida?
+Não haveria uma sequencia especifica, poderia ser:
+=====
+Eu sou o filho
+Linha em comun
+Eu sou o pai
+Linha em comun
+=====
+Eu sou o pai
+Linha em comun
+Eu sou o filho
+Linha em comun
+=====
+Eu sou o pai
+Eu sou o filho
+Linha em comun
+Linha em comun
+=====
