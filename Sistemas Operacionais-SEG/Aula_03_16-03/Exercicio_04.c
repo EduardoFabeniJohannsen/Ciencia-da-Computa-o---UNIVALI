@@ -13,13 +13,13 @@ int main (){
         return 1;
     }
     else if (pid == 0 ) {
-        fprintf(stderr,"Eu sou o filho\n");
+        printf(stderr,"Eu sou o filho\n");
         execlp("/bin/ls","ls",NULL);
     }
-    else (pid == 0 ) {
-        fprintf(stderr,"Eu sou o pai\n",pid);
+    else {
+        printf("Eu sou o pai %d\n",pid);
         wait(null);
-        printg("Filho completo\n");
+        printf("Filho completo\n");
     }
     return 0;
 }
