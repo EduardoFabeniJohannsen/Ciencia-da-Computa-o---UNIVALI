@@ -23,39 +23,37 @@ TRUNCATE TABLE Aluno;
 -- FIM -> Comando para inserir/apagar/ver os dados e testar
 
 
-CREATE OR REPLACE FUNCTION Bloquar_nome_com_espacos_no_comecoEfim()
-RETURNS TRIGGER AS $$
-BEGIN
-	NEW.nome := TRIM(regexp_replace(NEW.nome, ' +', ' ', 'g'));
-    RETURN NEW;
-END
-$$ LANGUAGE plpgsql;
-
+-- Exercicio 1
 CREATE OR REPLACE FUNCTION Validar_Nome_Com_Sobrenome()
 RETURNS TRIGGER AS $$
 BEGIN
     IF SPLIT_PART(TRIM(NEW.nome), ' ', 2) = '' THEN
         RAISE EXCEPTION 'Erro! É necessário sobrenome';
     END IF;
+
 	RAISE NOTICE 'Aluno "%" inserido com sucesso', new.nome;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-
-
--- criar primeiro a de correção
-CREATE TRIGGER Corrigir_Espacos_Nome
-BEFORE INSERT OR UPDATE
-ON Aluno
-FOR EACH ROW
-EXECUTE FUNCTION Bloquar_nome_com_espacos_no_comecoEfim();
-
--- depois a de validação
 CREATE TRIGGER Bloquear_Nome_Sem_Sobrenome
 BEFORE INSERT OR UPDATE
 ON Aluno
 FOR EACH ROW
 EXECUTE FUNCTION Validar_Nome_Com_Sobrenome();
 
+-- Exercicio 2
+CREATE OR REPLACE FUNCTION Converter_nome_para_maiusculo()
+RETURNS TRIGGER AS $$
+BEGIN 
+	IF NEW.nome != UPPER(NEW.nome) THEN
+		NEW.nome = UPPER(NEW.nome);
+		RAISE NOTICE 'Nome alterado de % para %', OLD.nome, new.nome;
+		RETURN NEW;
+	END IF
+END;
+
+
+
+$$ LANGUAGE plpgsql;
 
