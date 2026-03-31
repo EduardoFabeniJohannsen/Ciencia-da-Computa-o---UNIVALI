@@ -80,3 +80,37 @@ SELECT
 
 FROM PRODUTOS p;
 
+/*Compras e vendas, porem usando CTE*/
+WITH cte_produtos AS (
+    SELECT 
+        id_produto,
+        nome_produto
+    FROM produtos
+),
+
+cte_compras AS (
+    SELECT 
+        c.id_produto,
+        SUM(c.quantidade) AS total_compras
+    FROM compras c
+    GROUP BY c.id_produto
+),
+
+cte_vendas AS (
+    SELECT 
+        v.id_produto,
+        SUM(v.quantidade) AS total_vendas
+    FROM vendas v
+    GROUP BY v.id_produto
+)
+
+SELECT 
+    p.id_produto,
+    p.nome_produto,
+    COALESCE(c.total_compras, 0) AS total_compras,
+    COALESCE(v.total_vendas, 0) AS total_vendas,
+    COALESCE(c.total_compras, 0) - COALESCE(v.total_vendas, 0) AS saldo
+
+FROM cte_produtos p
+LEFT JOIN cte_compras c ON p.id_produto = c.id_produto
+LEFT JOIN cte_vendas v ON p.id_produto = v.id_produto;
