@@ -122,41 +122,36 @@ CREATE OR REPLACE PROCEDURE Procedure_mostrando_dados(p_id integer)
 LANGUAGE plpgsql
 AS $$
 DECLARE 
-    v_nome TEXT;
-    v_total_compras INT;
-    v_total_vendas INT;
-    v_saldo INT;
+    v_reg RECORD;
 BEGIN
-    -- Nome do produto
-    SELECT nome_produto
-    INTO v_nome
-    FROM produtos
-    WHERE id_produto = p_id;
 
-    -- Total de compras
-    SELECT COALESCE(SUM(quantidade), 0)
-    INTO v_total_compras
-    FROM compras
-    WHERE id_produto = p_id;
+    FOR v_reg IN 
+        SELECT 
+            p.id_produto,
+            p.nome_produto,
+            COALESCE(SUM(c.quantidade), 0) AS total_compras,
+            COALESCE(SUM(v.quantidade), 0) AS total_vendas,
+            COALESCE(SUM(c.quantidade), 0) - COALESCE(SUM(v.quantidade), 0) AS saldo
+        FROM produtos p
+        LEFT JOIN compras c ON p.id_produto = c.id_produto
+        LEFT JOIN vendas v ON p.id_produto = v.id_produto
+        WHERE (p_id = 0 OR p.id_produto = p_id)
+        GROUP BY p.id_produto, p.nome_produto
+    LOOP
 
-    -- Total de vendas
-    SELECT COALESCE(SUM(quantidade), 0)
-    INTO v_total_vendas
-    FROM vendas
-    WHERE id_produto = p_id;
+	RAISE NOTICE '============';
+    RAISE NOTICE 'ID: %', v_reg.id_produto;
+    RAISE NOTICE 'Produto: %', v_reg.nome_produto;
+    RAISE NOTICE 'Total de Compras: %', v_reg.total_compras;
+    RAISE NOTICE 'Total de Vendas: %', v_reg.total_vendas;
+    RAISE NOTICE 'Saldo: %', v_reg.saldo;
 
-    -- Saldo
-    v_saldo := v_total_compras - v_total_vendas;
 
-    -- Saída
-    RAISE NOTICE 'Produto: %', v_nome;
-    RAISE NOTICE 'Total de Compras: %', v_total_compras;
-    RAISE NOTICE 'Total de Vendas: %', v_total_vendas;
-    RAISE NOTICE 'Saldo: %', v_saldo;
+    END LOOP;
 
 END;
 $$;
-call Procedure_mostrando_dados(1)
+call Procedure_mostrando_dados(0)
 
 
 
