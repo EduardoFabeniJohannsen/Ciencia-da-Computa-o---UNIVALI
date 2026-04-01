@@ -114,3 +114,63 @@ SELECT
 FROM cte_produtos p
 LEFT JOIN cte_compras c ON p.id_produto = c.id_produto
 LEFT JOIN cte_vendas v ON p.id_produto = v.id_produto;
+
+
+
+/*Procedimento pra mostrar a info de um produto pelo ID*/
+CREATE OR REPLACE PROCEDURE Procedure_mostrando_dados(p_id integer)
+LANGUAGE plpgsql
+AS $$
+DECLARE 
+    v_nome TEXT;
+    v_total_compras INT;
+    v_total_vendas INT;
+    v_saldo INT;
+BEGIN
+    -- Nome do produto
+    SELECT nome_produto
+    INTO v_nome
+    FROM produtos
+    WHERE id_produto = p_id;
+
+    -- Total de compras
+    SELECT COALESCE(SUM(quantidade), 0)
+    INTO v_total_compras
+    FROM compras
+    WHERE id_produto = p_id;
+
+    -- Total de vendas
+    SELECT COALESCE(SUM(quantidade), 0)
+    INTO v_total_vendas
+    FROM vendas
+    WHERE id_produto = p_id;
+
+    -- Saldo
+    v_saldo := v_total_compras - v_total_vendas;
+
+    -- Saída
+    RAISE NOTICE 'Produto: %', v_nome;
+    RAISE NOTICE 'Total de Compras: %', v_total_compras;
+    RAISE NOTICE 'Total de Vendas: %', v_total_vendas;
+    RAISE NOTICE 'Saldo: %', v_saldo;
+
+END;
+$$;
+call Procedure_mostrando_dados(1)
+
+
+
+/*Procedimento pra mostrar os produtos*/
+CREATE OR REPLACE PROCEDURE mostra_nome_produtos()
+AS $$
+DECLARE
+    v_reg RECORD;
+BEGIN
+    FOR v_reg IN SELECT nome_produto FROM produtos	
+	LOOP
+      RAISE NOTICE 'O nome  é %', v_reg.nome_produto;
+	END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+call mostra_nome_produtos()
