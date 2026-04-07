@@ -46,7 +46,7 @@
 		id_log SERIAL PRIMARY KEY,
 		tabela_afetada TEXT NOT NULL,
 		id_registro_afetado INTEGER,
-		operacao TEXT NOT NULL.
+		operacao TEXT NOT NULL,
 		preco_antigo NUMERIC(10,2),
 		preco_anovo NUMERIC(10,2),
 		data_operacao DATE
