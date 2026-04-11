@@ -109,3 +109,39 @@ BEFORE DELETE
 ON Clientes
 FOR EACH ROW
 EXECUTE FUNCTION Impedir_Exclusao_Cliente();
+
+
+-- Exercicio 5
+
+CREATE OR REPLACE FUNCTION Atualizar_Status_Pedido()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Verifica se o item foi marcado como enviado
+    IF NEW.status_item = 'enviado' THEN
+
+        -- Verifica se ainda existe algum item não enviado
+        IF NOT EXISTS (
+            SELECT 1
+            FROM itens_pedidos
+            WHERE id_pedido = NEW.id_pedido
+            AND status_item <> 'enviado'
+        ) THEN
+
+            -- Atualiza o status do pedido
+            UPDATE Pedidos
+            SET stats = 'Concluído'
+            WHERE id_pedidos = NEW.id_pedido;
+
+        END IF;
+
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER Trigger_Atualizar_Status_Pedido
+AFTER UPDATE
+ON itens_pedidos
+FOR EACH ROW
+EXECUTE FUNCTION Atualizar_Status_Pedido();

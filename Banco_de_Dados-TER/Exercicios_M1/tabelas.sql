@@ -29,7 +29,8 @@
 		id_pedido INTEGER NOT NULL,
 		id_livro INTEGER NOT NULL,
 		quantidade INTEGER NOT NULL,
-		preco_unitario NUMERIC(10,2) NOT NULL,
+		preco_unitario NUMERIC(10,2) NOT NULL,7
+		status_item TEXT DEFAULT 'pendente',
 	
 			CONSTRAINT fk_pedido
 			FOREIGN KEY(id_pedido)
@@ -52,4 +53,4 @@
 		data_operacao DATE
 	);
 
-	
+

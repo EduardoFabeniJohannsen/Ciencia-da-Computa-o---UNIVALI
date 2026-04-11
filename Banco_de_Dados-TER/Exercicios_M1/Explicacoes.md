@@ -64,6 +64,8 @@ Crie a função e o trigger que realizam a baixa no estoque da tabela livros ap�
 itens_pedido e que, ao mesmo tempo, valide se o estoque se tornaria negativo.
 R: No código
 
+=======
+
 Exercício 4: Impedindo a Exclusão de Clientes com Pedidos
 
 Descrição: Para manter a integridade do histórico de vendas, um cliente que já realizou um pedido não pode
@@ -81,3 +83,24 @@ R: Caso o cliente possua pedidos, o trigger deve interromper a operação utiliz
 
 Implemente a solução completa (função e trigger).
 R: No código
+
+=======
+
+Exercício 5: Atualização Automática do Status do Pedido
+
+Descrição: A livraria deseja automatizar a atualização do status de um pedido. Sempre que o último item de
+um pedido for marcado como "enviado", o status do pedido na tabela pedidos deve ser atualizado para "Concluído".
+
+O trigger deve monitorar qual tabela e qual evento para essa automação?
+R: O trigger deve monitorar a tabela itens_pedidos e reagir ao evento UPDATE, pois a mudança de status ocorre nos itens do pedido. Sempre que um item for atualizado, é necessário verificar se todos os itens daquele pedido já foram enviados.
+
+Dentro da função do trigger, como você verificaria se todos os outros itens do mesmo pedido também já foram
+enviados?
+R: A verificação pode ser feita com uma consulta na tabela itens_pedidos buscando itens do mesmo id_pedido cujo status_item seja diferente de "enviado". Se não existir nenhum registro nessas condições, significa que todos os itens já foram enviados. Isso pode ser feito utilizando NOT EXISTS.
+
+Descreva os passos lógicos que a função do trigger executaria para, após uma atualização em itens_pedido,
+decidir se deve ou não atualizar a tabela pedidos.
+R: Primeiro, o trigger verifica se o status do item foi alterado para "enviado". Em seguida, consulta a tabela itens_pedidos para verificar se ainda existem itens do mesmo pedido que não foram enviados. Se não existir nenhum, a função atualiza o status do pedido na tabela pedidos para "Concluído". Caso contrário, nenhuma ação é realizada.
+
+Escreva o código PL/pgSQL para esta funcionalidade
+R:
