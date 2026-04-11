@@ -1,3 +1,4 @@
+
 -- Exercicio 1
 CREATE OR REPLACE FUNCTION Auditar_Alteracao_Preco()
 RETURNS TRIGGER AS $$
@@ -35,3 +36,20 @@ AFTER UPDATE
 ON livros
 FOR EACH ROW
 EXECUTE FUNCTION Auditar_Alteracao_Preco();
+
+
+-- Exercicio 2
+CREATE OR REPLACE FUNCTION Converter_Email_Minusculo()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.email := LOWER(NEW.email);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER Trigger_Email_Minusculo
+BEFORE INSERT OR UPDATE
+ON Clientes
+FOR EACH ROW
+EXECUTE FUNCTION Converter_Email_Minusculo();
+

@@ -19,3 +19,20 @@ R: As informações essenciais são: o nome da tabela afetada (livros), o ID do 
 Como você usaria as variáveis especiais OLD e NEW dentro da função do trigger para capturar o preço antigo
 e o novo preço?
 R: As variáveis OLD e NEW são utilizadas para acessar os valores antes e depois da atualização. O preço antigo é obtido com OLD.preco e o novo preço com NEW.preco. Dessa forma, é possível comparar os dois valores e registrar a alteração apenas quando houver diferença entre eles, garantindo um log mais preciso.
+
+====================
+
+Exercício 2: Garantindo a Consistência do E-mail do Cliente
+
+Descrição:
+Para evitar problemas de comunicação, a livraria quer garantir que todos os e-mails de clientes sejam armazenados em letras minúsculas.
+
+Qual é o melhor momento para executar essa lógica: BEFORE ou AFTER a inserção ou atualização de um registro na tabela clientes?
+Explique o porquê.
+R: O melhor momento é BEFORE INSERT ou UPDATE, pois assim o valor do e-mail pode ser modificado antes de ser salvo no banco de dados. Isso garante que o dado já seja armazenado corretamente, evitando inconsistências e não sendo necessário corrigir depois.
+
+Como você modificaria o valor do campo de e-mail antes que ele seja salvo no banco de dados, utilizando a estrutura de um trigger?
+R: Utilizaria a variável NEW dentro da função do trigger para alterar diretamente o valor do campo antes da inserção ou atualização. Nesse caso, aplicaria a função LOWER no campo NEW.email, garantindo que o valor seja convertido para letras minúsculas antes de ser persistido no banco.
+
+Desenvolva a função do trigger que converte o e-mail para minúsculas e associe-a à tabela clientes.
+R:No código
