@@ -36,3 +36,30 @@ R: Utilizaria a variável NEW dentro da função do trigger para alterar diretam
 
 Desenvolva a função do trigger que converte o e-mail para minúsculas e associe-a à tabela clientes.
 R:No código
+
+
+
+==============================
+
+
+Nível 2: Validação de Regras de Negócio
+
+Exercício 3: Prevenindo Estoque Negativo
+
+Descrição: É crucial para o sistema da livraria que a quantidade de um livro em estoque nunca se torne
+negativa. Proponha uma solução usando triggers para impor essa regra de negócio.
+
+Este trigger deve ser associado à tabela livros ou itens_pedido? A que evento(s) ele deve reagir? Justifique.
+R: O trigger deve ser associado à tabela itens_pedido, pois é nela que ocorre a saída de estoque quando um item é adicionado a um pedido. Ele deve reagir ao evento BEFORE INSERT, pois assim é possível validar a quantidade antes da inserção e impedir a operação caso o estoque seja insuficiente.
+
+Como você implementaria a lógica para verificar o estoque disponível antes de confirmar a inserção de um
+novo item em um pedido?
+R: A lógica consiste em consultar a quantidade disponível na tabela livros utilizando o id_livro do item que está sendo inserido. Em seguida, compara-se o valor com a quantidade solicitada (NEW.quantidade). Se o estoque disponível for menor que a quantidade solicitada, a operação deve ser bloqueada.
+
+O que o trigger deveria fazer se a quantidade pedida for maior que o estoque disponível? (Dica: pense em
+como interromper a operação e notificar o usuário).
+R: O trigger deve interromper a operação utilizando RAISE EXCEPTION, exibindo uma mensagem de erro informando que o estoque é insuficiente. Isso impede que o registro seja inserido e mantém a consistência dos dados.
+
+Crie a função e o trigger que realizam a baixa no estoque da tabela livros após a inserção de um novo
+itens_pedido e que, ao mesmo tempo, valide se o estoque se tornaria negativo.
+R: No código
