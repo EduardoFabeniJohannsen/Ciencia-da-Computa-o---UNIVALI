@@ -145,3 +145,25 @@ AFTER UPDATE
 ON itens_pedidos
 FOR EACH ROW
 EXECUTE FUNCTION Atualizar_Status_Pedido();
+
+-- Exercicio 6
+
+CREATE OR REPLACE FUNCTION Relatorio_Vendas_Cliente(p_id_cliente INTEGER)
+RETURNS TABLE (
+    nome_cliente TEXT,
+    total_pedidos INTEGER,
+    valor_total NUMERIC(10,2)
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        c.nome,
+        COUNT(DISTINCT p.id_pedidos)::INTEGER,
+        COALESCE(SUM(ip.quantidade * ip.preco_unitario), 0)
+    FROM Clientes c
+    LEFT JOIN Pedidos p ON p.id_cliente = c.id_clientes
+    LEFT JOIN itens_pedidos ip ON ip.id_pedido = p.id_pedidos
+    WHERE c.id_clientes = p_id_cliente
+    GROUP BY c.nome;
+END;
+$$ LANGUAGE plpgsql;

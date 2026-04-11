@@ -34,19 +34,18 @@ UPDATE Livros SET preco = 180.00 WHERE id_livro = 2;
 UPDATE itens_pedidos
 SET status_item = 'enviado'
 WHERE id_item = 1;
-
 -- agora conclui pedido 1
 UPDATE itens_pedidos
 SET status_item = 'enviado'
 WHERE id_pedido = 1;
 
--- DELETEs de teste
 
+-- DELETEs de teste
 -- deve falhar
 DELETE FROM Clientes WHERE id_clientes = 1;
-
 -- deve funcionar
 DELETE FROM Clientes WHERE nome = 'Teste Sem Pedido';
+
 
 -- SELECTs finais
 SELECT * FROM Livros;
@@ -54,3 +53,6 @@ SELECT * FROM Clientes;
 SELECT * FROM Pedidos;
 SELECT * FROM itens_pedidos;
 SELECT * FROM log_auditoria;
+
+-- Procedures
+SELECT * FROM Relatorio_Vendas_Cliente(1);
