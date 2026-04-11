@@ -85,3 +85,27 @@ BEFORE INSERT
 ON itens_pedidos
 FOR EACH ROW
 EXECUTE FUNCTION Controlar_Estoque();
+
+-- Exercicio 4
+
+CREATE OR REPLACE FUNCTION Impedir_Exclusao_Cliente()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Verifica se o cliente possui pedidos
+    IF EXISTS (
+        SELECT 1
+        FROM Pedidos
+        WHERE id_cliente = OLD.id_clientes
+    ) THEN
+        RAISE EXCEPTION 'Erro: cliente possui pedidos e não pode ser excluído';
+    END IF;
+
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER Trigger_Impedir_Exclusao_Cliente
+BEFORE DELETE
+ON Clientes
+FOR EACH ROW
+EXECUTE FUNCTION Impedir_Exclusao_Cliente();

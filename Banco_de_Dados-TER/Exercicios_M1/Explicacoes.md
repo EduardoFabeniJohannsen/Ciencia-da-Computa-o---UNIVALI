@@ -63,3 +63,21 @@ R: O trigger deve interromper a operação utilizando RAISE EXCEPTION, exibindo 
 Crie a função e o trigger que realizam a baixa no estoque da tabela livros após a inserção de um novo
 itens_pedido e que, ao mesmo tempo, valide se o estoque se tornaria negativo.
 R: No código
+
+Exercício 4: Impedindo a Exclusão de Clientes com Pedidos
+
+Descrição: Para manter a integridade do histórico de vendas, um cliente que já realizou um pedido não pode
+ser excluído do sistema.
+
+O trigger deve ser do tipo BEFORE ou AFTER DELETE na tabela clientes? Por quê?
+R: O trigger deve ser do tipo BEFORE DELETE, pois é necessário validar a existência de pedidos antes que a exclusão ocorra. Dessa forma, é possível impedir a operação antes que o registro seja removido do banco de dados.
+
+Como a função do trigger pode verificar se existem registros na tabela pedidos associados ao cliente que está
+sendo excluído?
+R: A função pode realizar uma consulta na tabela pedidos utilizando o id do cliente (OLD.id_clientes) para verificar se existem registros associados. Isso pode ser feito com um SELECT COUNT ou utilizando EXISTS para verificar a existência de pelo menos um pedido.
+
+Qual ação o trigger deve tomar caso o cliente possua pedidos? Como ele pode impedir a exclusão?
+R: Caso o cliente possua pedidos, o trigger deve interromper a operação utilizando RAISE EXCEPTION, exibindo uma mensagem de erro. Isso impede a exclusão do registro e garante a integridade dos dados.
+
+Implemente a solução completa (função e trigger).
+R: No código
