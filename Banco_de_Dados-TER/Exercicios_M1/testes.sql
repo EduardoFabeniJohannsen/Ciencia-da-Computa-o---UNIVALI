@@ -58,3 +58,4 @@ SELECT * FROM log_auditoria;
 SELECT * FROM Relatorio_Vendas_Cliente(1);
 SELECT Repor_Estoque(1, 10);
 SELECT Cancelar_Pedido(1);
+SELECT * FROM Ranking_Livros_Mais_Vendidos(4, 2026);

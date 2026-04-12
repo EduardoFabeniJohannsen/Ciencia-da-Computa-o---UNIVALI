@@ -288,3 +288,27 @@ BEGIN
 
 END;
 $$ LANGUAGE plpgsql;
+
+-- Exercicio 9
+CREATE OR REPLACE FUNCTION Ranking_Livros_Mais_Vendidos(p_mes INTEGER, p_ano INTEGER)
+RETURNS TABLE (
+    titulo TEXT,
+    autor TEXT,
+    total_vendido INTEGER
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        l.titulo,
+        l.autor,
+        SUM(ip.quantidade)::INTEGER
+    FROM itens_pedidos ip
+    JOIN pedidos p ON p.id_pedidos = ip.id_pedido
+    JOIN livros l ON l.id_livro = ip.id_livro
+    WHERE EXTRACT(MONTH FROM p.data_pedido) = p_mes
+      AND EXTRACT(YEAR FROM p.data_pedido) = p_ano
+    GROUP BY l.titulo, l.autor
+    ORDER BY total_vendido DESC
+    LIMIT 5;
+END;
+$$ LANGUAGE plpgsql;
