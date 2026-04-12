@@ -167,3 +167,77 @@ BEGIN
     GROUP BY c.nome;
 END;
 $$ LANGUAGE plpgsql;
+
+
+
+-- Exercicio 7
+CREATE OR REPLACE FUNCTION Repor_Estoque(p_id_livro INTEGER, p_quantidade INTEGER)
+RETURNS VOID AS $$
+DECLARE
+    estoque_antigo INTEGER;
+BEGIN
+    -- busca estoque atual
+    SELECT quantidade_estoque
+    INTO estoque_antigo
+    FROM Livros
+    WHERE id_livro = p_id_livro;
+
+    -- valida existência
+    IF estoque_antigo IS NULL THEN
+        RAISE EXCEPTION 'Livro não encontrado';
+    END IF;
+
+    -- atualiza estoque
+    UPDATE Livros
+    SET quantidade_estoque = quantidade_estoque + p_quantidade
+    WHERE id_livro = p_id_livro;
+
+    -- registra log
+    INSERT INTO log_auditoria (
+        tabela_afetada,
+        id_registro_afetado,
+        operacao,
+        preco_antigo,
+        preco_novo,
+        data_operacao
+    )
+    VALUES (
+        'livros',
+        p_id_livro,
+        'REPOSICAO_ESTOQUE',
+        estoque_antigo,
+        estoque_antigo + p_quantidade,
+        CURRENT_DATE
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION Verificar_E_Repor_Estoque()
+RETURNS TRIGGER AS $$
+DECLARE
+    estoque_atual INTEGER;
+BEGIN
+    -- pega estoque atual
+    SELECT quantidade_estoque
+    INTO estoque_atual
+    FROM Livros
+    WHERE id_livro = NEW.id_livro;
+
+    -- verifica limite mínimo
+    IF estoque_atual <= 5 THEN
+        -- chama a procedure de reposição (ex: repor 10 unidades)
+        PERFORM Repor_Estoque(NEW.id_livro, 10);
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE TRIGGER Trigger_Repor_Estoque
+AFTER INSERT
+ON itens_pedidos
+FOR EACH ROW
+EXECUTE FUNCTION Verificar_E_Repor_Estoque();
