@@ -56,3 +56,5 @@ SELECT * FROM log_auditoria;
 
 -- Procedures
 SELECT * FROM Relatorio_Vendas_Cliente(1);
+SELECT Repor_Estoque(1, 10);
+SELECT Cancelar_Pedido(1);

@@ -241,3 +241,50 @@ AFTER INSERT
 ON itens_pedidos
 FOR EACH ROW
 EXECUTE FUNCTION Verificar_E_Repor_Estoque();
+
+
+-- Exercicio 8
+CREATE OR REPLACE FUNCTION Cancelar_Pedido(p_id_pedido INTEGER)
+RETURNS VOID AS $$
+DECLARE
+    item RECORD;
+BEGIN
+    -- Verifica se o pedido existe
+    IF NOT EXISTS (
+        SELECT 1 FROM Pedidos WHERE id_pedidos = p_id_pedido
+    ) THEN
+        RAISE EXCEPTION 'Pedido não encontrado';
+    END IF;
+
+    -- Devolve os itens ao estoque
+    FOR item IN
+        SELECT id_livro, quantidade
+        FROM itens_pedidos
+        WHERE id_pedido = p_id_pedido
+    LOOP
+        UPDATE Livros
+        SET quantidade_estoque = quantidade_estoque + item.quantidade
+        WHERE id_livro = item.id_livro;
+    END LOOP;
+
+    -- Atualiza status do pedido
+    UPDATE Pedidos
+    SET stats = 'Cancelado'
+    WHERE id_pedidos = p_id_pedido;
+
+    -- Registra log
+    INSERT INTO log_auditoria (
+        tabela_afetada,
+        id_registro_afetado,
+        operacao,
+        data_operacao
+    )
+    VALUES (
+        'pedidos',
+        p_id_pedido,
+        'CANCELAMENTO_PEDIDO',
+        CURRENT_DATE
+    );
+
+END;
+$$ LANGUAGE plpgsql;
