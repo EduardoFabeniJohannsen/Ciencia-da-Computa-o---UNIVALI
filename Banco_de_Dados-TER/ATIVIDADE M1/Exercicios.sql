@@ -91,3 +91,44 @@ CREATE TRIGGER trigger_delete_pedido
 BEFORE DELETE ON pedidos
 FOR EACH ROW
 EXECUTE FUNCTION trg_delete_pedido();
+
+-- QUESTÃO 4
+CREATE OR REPLACE FUNCTION trg_monitor_pedidos()
+RETURNS TRIGGER AS $$
+BEGIN
+
+    -- INSERT
+    IF TG_OP = 'INSERT' THEN
+        INSERT INTO log_pedidos(pedido_id, operacao, data_log)
+        VALUES (NEW.id, 'INSERT', NOW());
+        RETURN NEW;
+    END IF;
+
+    -- UPDATE
+    IF TG_OP = 'UPDATE' THEN
+        IF NEW.status_pedido IN ('Processado', 'Cancelado') THEN
+            INSERT INTO log_pedidos(pedido_id, operacao, data_log)
+            VALUES (NEW.id, 'UPDATE - ' || NEW.status_pedido, NOW());
+        END IF;
+        RETURN NEW;
+    END IF;
+
+    -- DELETE
+    IF TG_OP = 'DELETE' THEN
+        IF OLD.status_pedido <> 'Pendente' THEN
+            RAISE EXCEPTION 'Só é possível deletar pedidos Pendente!';
+        END IF;
+
+        INSERT INTO log_pedidos(pedido_id, operacao, data_log)
+        VALUES (OLD.id, 'DELETE', NOW());
+
+        RETURN OLD;
+    END IF;
+
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_monitor_pedidos
+AFTER INSERT OR UPDATE OR DELETE ON pedidos
+FOR EACH ROW
+EXECUTE FUNCTION trg_monitor_pedidos();
