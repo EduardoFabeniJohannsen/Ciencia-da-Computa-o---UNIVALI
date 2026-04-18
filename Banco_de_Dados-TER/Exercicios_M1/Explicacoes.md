@@ -103,4 +103,4 @@ decidir se deve ou não atualizar a tabela pedidos.
 R: Primeiro, o trigger verifica se o status do item foi alterado para "enviado". Em seguida, consulta a tabela itens_pedidos para verificar se ainda existem itens do mesmo pedido que não foram enviados. Se não existir nenhum, a função atualiza o status do pedido na tabela pedidos para "Concluído". Caso contrário, nenhuma ação é realizada.
 
 Escreva o código PL/pgSQL para esta funcionalidade
-R:
+R:git
