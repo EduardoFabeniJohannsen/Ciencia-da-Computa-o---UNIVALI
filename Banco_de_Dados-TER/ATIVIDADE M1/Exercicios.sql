@@ -36,3 +36,58 @@ BEGIN
     ORDER BY total_vendas DESC;
 END;
 $$;
+
+-- QUESTÃO 3    
+-- INSERT
+CREATE OR REPLACE FUNCTION trg_insert_pedido()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO log_pedidos(pedido_id, operacao, data_log)
+    VALUES (NEW.id, 'INSERT', NOW());
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_insert_pedido
+AFTER INSERT ON pedidos
+FOR EACH ROW
+EXECUTE FUNCTION trg_insert_pedido();
+
+-- UPDATE
+CREATE OR REPLACE FUNCTION trg_update_pedido()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status_pedido IN ('Processado', 'Cancelado') THEN
+        INSERT INTO log_pedidos(pedido_id, operacao, data_log)
+        VALUES (NEW.id, 'UPDATE - ' || NEW.status_pedido, NOW());
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_pedido
+AFTER UPDATE ON pedidos
+FOR EACH ROW
+EXECUTE FUNCTION trg_update_pedido();
+
+-- DELETE
+CREATE OR REPLACE FUNCTION trg_delete_pedido()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF OLD.status_pedido <> 'Pendente' THEN
+        RAISE EXCEPTION 'Só é possível deletar pedidos com status Pendente!';
+    END IF;
+
+    INSERT INTO log_pedidos(pedido_id, operacao, data_log)
+    VALUES (OLD.id, 'DELETE', NOW());
+
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_delete_pedido
+BEFORE DELETE ON pedidos
+FOR EACH ROW
+EXECUTE FUNCTION trg_delete_pedido();
