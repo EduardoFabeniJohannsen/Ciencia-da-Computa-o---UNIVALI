@@ -82,3 +82,14 @@ Além disso, o gestor da unidade pode gerenciar regras de prioridade (UC13) e ge
 ## 4.4 Diagrama de Casos de Uso
 
 O diagrama de casos de uso representa a interação entre os atores e o sistema, demonstrando as funcionalidades principais.
+
+
+---
+
+## 4.5 Comentários de Revisão - Gustavo Bormanieri
+
+- A lista de casos de uso está coerente com o BPMN proposto, cobrindo todas as etapas do fluxo de atendimento.
+- Foi verificada a correspondência entre os requisitos funcionais (RF) e os casos de uso, não havendo funcionalidades fora do escopo definido.
+- A separação entre ações do sistema e ações dos atores está clara e consistente.
+- Recomenda-se, na próxima versão, explicitar relacionamentos <<include>> ou <<extend>> no diagrama para maior detalhamento.
+- Os casos de uso relacionados ao gestor agregam valor ao sistema, mas devem ser validados quanto à prioridade no escopo da V1.
