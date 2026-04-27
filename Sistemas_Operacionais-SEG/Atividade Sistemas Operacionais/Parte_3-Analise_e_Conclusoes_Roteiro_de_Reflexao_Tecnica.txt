@@ -1,0 +1,97 @@
+Parte 3: Análise e Conclusões (Roteiro de Reflexão Técnica)
+1. Sobre a Paginação Hierárquica
+
+Na implementação realizada, foi possível observar que as tabelas de segundo nível só são criadas quando existe necessidade real de armazenar páginas naquela região da memória virtual.
+
+Isso significa que, se um processo utiliza pouca memória e apenas alguns blocos isolados, o sistema não precisa reservar toda a estrutura de mapeamento completa.
+
+Em uma Tabela de Páginas Simples, seria necessário alocar uma tabela inteira contendo entrada para todas as páginas virtuais possíveis do processo, mesmo que grande parte delas nunca fosse utilizada.
+
+Já na Paginação Hierárquica, apenas os blocos realmente acessados recebem tabelas secundárias. Dessa forma:
+
+reduz o desperdício de memória;
+evita estruturas grandes desnecessárias;
+torna o uso mais eficiente para processos pequenos ou fragmentados.
+
+Portanto, essa técnica economiza espaço ao alocar memória sob demanda.
+
+2. Sobre a Tabela de Páginas com Hash
+
+Na teoria, a busca em uma tabela hash possui complexidade média próxima de O(1), pois a função hash aponta diretamente para a posição desejada.
+
+Porém, quando duas ou mais páginas geram o mesmo índice, ocorre uma colisão. Na implementação utilizada, essas colisões foram tratadas com listas encadeadas.
+
+Se o tamanho da tabela hash for muito pequeno e existirem muitas páginas armazenadas, várias colisões ocorrerão. Nesse caso:
+
+as listas encadeadas ficam maiores;
+a busca deixa de ser constante;
+o tempo pode se aproximar de O(n) no pior caso.
+
+Para equilibrar desempenho e uso de memória, o Sistema Operacional precisa escolher um tamanho de hash adequado:
+
+Hash maior: menos colisões, busca mais rápida, maior consumo de memória;
+Hash menor: menor uso de memória, porém mais colisões e busca mais lenta.
+
+Assim, o sistema busca um ponto de equilíbrio entre espaço ocupado e velocidade de acesso.
+
+3. Sobre a Tabela de Páginas Invertida
+
+A principal vantagem da Tabela Invertida é que seu tamanho depende apenas da quantidade de frames físicos da RAM, e não do espaço virtual dos processos.
+
+Isso reduz drasticamente o tamanho da estrutura quando comparado às tabelas tradicionais.
+
+Entretanto, na implementação sequencial realizada, para localizar uma página lógica é necessário percorrer todos os frames até encontrar a página desejada.
+
+No pior caso, a complexidade de busca é:
+
+O(n)
+
+onde n representa a quantidade de frames físicos.
+
+Em sistemas operacionais reais, essa lentidão é reduzida pelo uso da TLB (Translation Lookaside Buffer).
+
+A TLB é uma memória cache de hardware que armazena traduções recentes de páginas virtuais para frames físicos, evitando buscas completas na tabela principal.
+
+Sem a TLB, o desempenho da tradução de endereços seria muito inferior.
+
+4. Síntese e Trade-offs
+Ranking – Uso de Memória
+
+(do mais econômico para o mais custoso)
+
+Tabela Invertida
+Paginação Hierárquica
+Tabela de Páginas Simples / Hash mal dimensionada
+
+A tabela invertida utiliza menos memória porque possui uma entrada por frame físico.
+
+Ranking – Velocidade de Busca
+
+(do mais rápido para o mais lento)
+
+Tabela Hash (bem dimensionada)
+Paginação Hierárquica
+Tabela Invertida sequencial
+
+A hash tende a ser mais rápida quando há poucas colisões.
+
+Conclusão Geral
+
+Não existe solução perfeita para todos os casos no gerenciamento de memória.
+
+Cada estrutura oferece vantagens e desvantagens:
+
+algumas economizam memória;
+outras priorizam velocidade;
+outras simplificam escalabilidade.
+
+Portanto, o gerenciamento de memória sempre envolve trade-off entre uso de espaço e tempo de processamento.
+
+O Sistema Operacional escolhe a melhor estratégia de acordo com:
+
+arquitetura do hardware;
+quantidade de RAM;
+tamanho do espaço virtual;
+carga de trabalho executada.
+
+Em resumo, melhorar um aspecto normalmente significa sacrificar outro.
