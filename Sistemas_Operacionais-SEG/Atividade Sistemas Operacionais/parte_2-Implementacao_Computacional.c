@@ -1,138 +1,154 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-#define MAX_PAGINAS 128
-#define MAX_FRAMES 128
-#define HASH_SIZE 10
+#define MAXIMO_FRAMES 128
+#define TAMANHO_HASH 10
 
-/* =====================================================
-   1) PAGINACAO HIERARQUICA (2 NIVEIS)
-===================================================== */
+/* ================= PAGINAÇÃO HIERÁRQUICA ================= */
 
 typedef struct {
-    int valido;
-    int frame;
-} EntradaNivel2;
+    int paginaExiste;
+    int numeroFrame;
+} EntradaSegundoNivel;
 
 typedef struct {
-    EntradaNivel2 *tabela[16];
-} TabelaNivel1;
+    EntradaSegundoNivel *tabelasSecundarias[16];
+} TabelaPrimeiroNivel;
 
-TabelaNivel1 hierarquica;
+TabelaPrimeiroNivel tabelaHierarquica;
 
-void initHierarquica() {
-    for (int i = 0; i < 16; i++)
-        hierarquica.tabela[i] = NULL;
+void iniciarHierarquica() {
+    for (int indice = 0; indice < 16; indice++) {
+        tabelaHierarquica.tabelasSecundarias[indice] = NULL;
+    }
 }
 
-void inserirHierarquica(int pagina, int frame) {
-    int p1 = pagina / 16;
-    int p2 = pagina % 16;
+void inserirHierarquica(int numeroPagina, int numeroFrame) {
 
-    if (hierarquica.tabela[p1] == NULL) {
-        hierarquica.tabela[p1] = malloc(sizeof(EntradaNivel2) * 16);
+    int indicePrimeiroNivel = numeroPagina / 16;
+    int indiceSegundoNivel = numeroPagina % 16;
 
-        for (int i = 0; i < 16; i++) {
-            hierarquica.tabela[p1][i].valido = 0;
-            hierarquica.tabela[p1][i].frame = -1;
+    // Cria tabela secundária apenas quando necessário
+    if (tabelaHierarquica.tabelasSecundarias[indicePrimeiroNivel] == NULL) {
+
+        tabelaHierarquica.tabelasSecundarias[indicePrimeiroNivel] =
+            malloc(sizeof(EntradaSegundoNivel) * 16);
+
+        for (int indice = 0; indice < 16; indice++) {
+            tabelaHierarquica.tabelasSecundarias[indicePrimeiroNivel][indice].paginaExiste = 0;
+            tabelaHierarquica.tabelasSecundarias[indicePrimeiroNivel][indice].numeroFrame = -1;
         }
     }
 
-    hierarquica.tabela[p1][p2].valido = 1;
-    hierarquica.tabela[p1][p2].frame = frame;
+    tabelaHierarquica.tabelasSecundarias[indicePrimeiroNivel][indiceSegundoNivel].paginaExiste = 1;
+    tabelaHierarquica.tabelasSecundarias[indicePrimeiroNivel][indiceSegundoNivel].numeroFrame = numeroFrame;
 }
 
-void buscarHierarquica(int pagina) {
-    int p1 = pagina / 16;
-    int p2 = pagina % 16;
+void buscarHierarquica(int numeroPagina) {
 
-    if (hierarquica.tabela[p1] == NULL ||
-        hierarquica.tabela[p1][p2].valido == 0) {
+    int indicePrimeiroNivel = numeroPagina / 16;
+    int indiceSegundoNivel = numeroPagina % 16;
+
+    if (tabelaHierarquica.tabelasSecundarias[indicePrimeiroNivel] == NULL ||
+        tabelaHierarquica.tabelasSecundarias[indicePrimeiroNivel][indiceSegundoNivel].paginaExiste == 0) {
+
         printf("Page Fault\n");
         return;
     }
 
     printf("Frame encontrado: %d\n",
-           hierarquica.tabela[p1][p2].frame);
+        tabelaHierarquica.tabelasSecundarias[indicePrimeiroNivel][indiceSegundoNivel].numeroFrame);
 }
 
-/* =====================================================
-   2) TABELA HASH
-===================================================== */
+/* ================= TABELA HASH ================= */
 
-typedef struct NoHash {
-    int pagina;
-    int frame;
-    struct NoHash *prox;
-} NoHash;
+typedef struct ItemHash {
 
-NoHash *hash[HASH_SIZE];
+    int numeroPagina;
+    int numeroFrame;
+    struct ItemHash *proximo;
 
-void initHash() {
-    for (int i = 0; i < HASH_SIZE; i++)
-        hash[i] = NULL;
+} ItemHash;
+
+ItemHash *tabelaHash[TAMANHO_HASH];
+
+void iniciarHash() {
+    for (int indice = 0; indice < TAMANHO_HASH; indice++) {
+        tabelaHash[indice] = NULL;
+    }
 }
 
-int funcaoHash(int pagina) {
-    return pagina % HASH_SIZE;
+int calcularHash(int numeroPagina) {
+    return numeroPagina % TAMANHO_HASH;
 }
 
-void inserirHash(int pagina, int frame) {
-    int pos = funcaoHash(pagina);
+void inserirHash(int numeroPagina, int numeroFrame) {
 
-    NoHash *novo = malloc(sizeof(NoHash));
-    novo->pagina = pagina;
-    novo->frame = frame;
-    novo->prox = hash[pos];
+    int indiceHash = calcularHash(numeroPagina);
 
-    hash[pos] = novo;
+    ItemHash *novoItem = malloc(sizeof(ItemHash));
+
+    novoItem->numeroPagina = numeroPagina;
+    novoItem->numeroFrame = numeroFrame;
+
+    // Colisão é tratada por lista encadeada
+    novoItem->proximo = tabelaHash[indiceHash];
+    tabelaHash[indiceHash] = novoItem;
 }
 
-void buscarHash(int pagina) {
-    int pos = funcaoHash(pagina);
+void buscarHash(int numeroPagina) {
 
-    NoHash *aux = hash[pos];
+    int indiceHash = calcularHash(numeroPagina);
 
-    while (aux != NULL) {
-        if (aux->pagina == pagina) {
-            printf("Frame encontrado: %d\n", aux->frame);
+    ItemHash *itemAtual = tabelaHash[indiceHash];
+
+    while (itemAtual != NULL) {
+
+        if (itemAtual->numeroPagina == numeroPagina) {
+            printf("Frame encontrado: %d\n", itemAtual->numeroFrame);
             return;
         }
-        aux = aux->prox;
+
+        itemAtual = itemAtual->proximo;
     }
 
     printf("Page Fault\n");
 }
 
-/* =====================================================
-   3) TABELA INVERTIDA
-===================================================== */
+/* ================= TABELA INVERTIDA ================= */
 
 typedef struct {
-    int ocupado;
-    int pagina;
+
+    int frameOcupado;
+    int numeroPagina;
+
 } EntradaInvertida;
 
-EntradaInvertida invertida[MAX_FRAMES];
+EntradaInvertida tabelaInvertida[MAXIMO_FRAMES];
 
-void initInvertida() {
-    for (int i = 0; i < MAX_FRAMES; i++) {
-        invertida[i].ocupado = 0;
-        invertida[i].pagina = -1;
+void iniciarInvertida() {
+
+    for (int indice = 0; indice < MAXIMO_FRAMES; indice++) {
+        tabelaInvertida[indice].frameOcupado = 0;
+        tabelaInvertida[indice].numeroPagina = -1;
     }
 }
 
-void inserirInvertida(int pagina, int frame) {
-    invertida[frame].ocupado = 1;
-    invertida[frame].pagina = pagina;
+void inserirInvertida(int numeroPagina, int numeroFrame) {
+
+    tabelaInvertida[numeroFrame].frameOcupado = 1;
+    tabelaInvertida[numeroFrame].numeroPagina = numeroPagina;
 }
 
-void buscarInvertida(int pagina) {
-    for (int i = 0; i < MAX_FRAMES; i++) {
-        if (invertida[i].ocupado &&
-            invertida[i].pagina == pagina) {
-            printf("Frame encontrado: %d\n", i);
+void buscarInvertida(int numeroPagina) {
+
+    // Procura página percorrendo todos os frames físicos
+    for (int numeroFrame = 0; numeroFrame < MAXIMO_FRAMES; numeroFrame++) {
+
+        if (tabelaInvertida[numeroFrame].frameOcupado == 1 &&
+            tabelaInvertida[numeroFrame].numeroPagina == numeroPagina) {
+
+            printf("Frame encontrado: %d\n", numeroFrame);
             return;
         }
     }
@@ -140,62 +156,76 @@ void buscarInvertida(int pagina) {
     printf("Page Fault\n");
 }
 
-/* =====================================================
-   MENU
-===================================================== */
+/* ================= MENU ================= */
 
 int main() {
-    int opcao, estrutura;
-    int pagina, frame;
 
-    initHierarquica();
-    initHash();
-    initInvertida();
+    int opcaoMenu;
+    int tipoEstrutura;
+    int numeroPagina;
+    int numeroFrame;
+
+    iniciarHierarquica();
+    iniciarHash();
+    iniciarInvertida();
 
     do {
-        printf("\n===== EMULADOR PAGINACAO =====\n");
+
+        printf("\n===== EMULADOR DE PAGINACAO =====\n");
         printf("1 - Inserir pagina\n");
         printf("2 - Buscar pagina\n");
         printf("0 - Sair\n");
         printf("Opcao: ");
-        scanf("%d", &opcao);
+        scanf("%d", &opcaoMenu);
 
-        if (opcao == 1) {
-            printf("\n1-Hierarquica  2-Hash  3-Invertida\n");
-            scanf("%d", &estrutura);
+        if (opcaoMenu == 1) {
 
-            printf("Pagina logica: ");
-            scanf("%d", &pagina);
+            printf("\nEscolha a estrutura:\n");
+            printf("1 - Hierarquica\n");
+            printf("2 - Hash\n");
+            printf("3 - Invertida\n");
+            scanf("%d", &tipoEstrutura);
 
-            printf("Frame fisico: ");
-            scanf("%d", &frame);
+            printf("Numero da pagina logica: ");
+            scanf("%d", &numeroPagina);
 
-            if (estrutura == 1)
-                inserirHierarquica(pagina, frame);
-            else if (estrutura == 2)
-                inserirHash(pagina, frame);
-            else if (estrutura == 3)
-                inserirInvertida(pagina, frame);
+            printf("Numero do frame fisico: ");
+            scanf("%d", &numeroFrame);
 
-            printf("Mapeamento realizado!\n");
+            if (tipoEstrutura == 1)
+                inserirHierarquica(numeroPagina, numeroFrame);
+
+            else if (tipoEstrutura == 2)
+                inserirHash(numeroPagina, numeroFrame);
+
+            else if (tipoEstrutura == 3)
+                inserirInvertida(numeroPagina, numeroFrame);
+
+            printf("Mapeamento realizado com sucesso!\n");
         }
 
-        else if (opcao == 2) {
-            printf("\n1-Hierarquica  2-Hash  3-Invertida\n");
-            scanf("%d", &estrutura);
+        else if (opcaoMenu == 2) {
 
-            printf("Pagina logica: ");
-            scanf("%d", &pagina);
+            printf("\nEscolha a estrutura:\n");
+            printf("1 - Hierarquica\n");
+            printf("2 - Hash\n");
+            printf("3 - Invertida\n");
+            scanf("%d", &tipoEstrutura);
 
-            if (estrutura == 1)
-                buscarHierarquica(pagina);
-            else if (estrutura == 2)
-                buscarHash(pagina);
-            else if (estrutura == 3)
-                buscarInvertida(pagina);
+            printf("Numero da pagina logica: ");
+            scanf("%d", &numeroPagina);
+
+            if (tipoEstrutura == 1)
+                buscarHierarquica(numeroPagina);
+
+            else if (tipoEstrutura == 2)
+                buscarHash(numeroPagina);
+
+            else if (tipoEstrutura == 3)
+                buscarInvertida(numeroPagina);
         }
 
-    } while (opcao != 0);
+    } while (opcaoMenu != 0);
 
     return 0;
 }
