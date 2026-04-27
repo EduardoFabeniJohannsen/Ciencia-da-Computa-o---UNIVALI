@@ -1,0 +1,92 @@
+1. Paginação Hierárquica (Multinível)
+
+A paginação simples utiliza uma única tabela de páginas para mapear todos os endereços virtuais de um processo para endereços físicos. Em sistemas modernos, com grandes espaços de endereçamento, essa tabela pode se tornar enorme e desperdiçar muita memória, principalmente quando o processo utiliza apenas uma pequena parte da memória virtual.
+
+
+A paginação hierárquica resolve esse problema dividindo o número da página virtual em várias partes. Cada parte aponta para um nível diferente de tabela. Assim, existe uma tabela principal que aponta apenas para tabelas secundárias necessárias.
+
+
+Vantagem principal:
+As tabelas de níveis inferiores só são criadas quando realmente existem páginas sendo usadas naquela região da memória virtual. Isso reduz bastante o consumo de memória.
+
+
+Exemplo:
+Se um processo usa apenas alguns blocos isolados de memória, o sistema cria somente as tabelas correspondentes a esses blocos, em vez de alocar uma tabela gigante inteira.
+
+
+Desvantagem:
+A tradução de endereços pode exigir múltiplos acessos à memória (um por nível), tornando a busca mais lenta do que na tabela simples.
+
+==========================================
+
+2. Tabelas de Página com Hash
+
+Em arquiteturas maiores que 32 bits (como 64 bits), o número de páginas virtuais cresce enormemente. Manter tabelas tradicionais se torna caro em memória e pouco eficiente.
+
+
+A solução é usar uma função hash, que transforma o número da página virtual em um índice dentro de uma tabela hash. Nesse índice ficam armazenadas entradas contendo:
+
+
+número da página virtual
+frame físico correspondente
+ponteiro para próximo elemento (caso haja colisão)
+
+
+Como otimiza a busca:
+Em vez de percorrer grandes tabelas, o sistema calcula o hash e vai diretamente para uma posição provável da entrada.
+
+
+Colisões:
+Quando duas páginas geram o mesmo índice hash, ocorre colisão. O sistema normalmente resolve isso com listas encadeadas (chaining), armazenando várias entradas no mesmo bucket.
+
+
+Vantagem principal:
+Busca rápida, próxima de tempo constante em média.
+
+
+Desvantagem:
+Se houver muitas colisões, o tempo de busca aumenta.
+
+==========================================
+
+3. Tabelas de Páginas Invertidas
+
+Na paginação comum, cada processo possui uma tabela baseada em seu espaço de memória virtual. Em sistemas grandes, isso gera tabelas enormes para cada processo.
+
+
+A tabela invertida muda a lógica: em vez de mapear páginas virtuais, ela mapeia frames físicos da RAM.
+
+
+Ou seja:
+
+existe uma única tabela global no sistema
+cada entrada representa um frame físico
+a entrada informa qual processo e qual página virtual ocupa aquele frame
+
+
+Por que reduz drasticamente o tamanho:
+O número de entradas depende da quantidade de frames da memória física, e não do tamanho do espaço virtual dos processos.
+
+Como a RAM é muito menor que o espaço virtual total, a tabela fica muito menor.
+
+
+Custo computacional:
+Para descobrir onde uma página virtual está, o sistema precisa procurar qual entrada contém aquele processo + página virtual. Em uma busca puramente sequencial, isso pode custar tempo linear O(n).
+
+
+Solução real:
+Sistemas operacionais usam apoio de hardware, especialmente a TLB (Translation Lookaside Buffer), cache de traduções recentes, para evitar buscas lentas frequentes.
+
+
+==========================================
+
+
+Conclusão Geral
+
+As três técnicas surgiram para resolver limitações da tabela simples:
+
+Paginação Hierárquica: economiza memória alocando tabelas sob demanda.
+Tabela Hash: acelera buscas em espaços virtuais enormes.
+Tabela Invertida: reduz drasticamente o tamanho da estrutura total.
+
+Nenhuma solução é perfeita: todas envolvem troca entre uso de memória e tempo de acesso.
