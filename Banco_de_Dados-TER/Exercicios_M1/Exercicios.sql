@@ -289,6 +289,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP FUNCTION IF EXISTS Ranking_Livros_Mais_Vendidos(INTEGER, INTEGER);
 -- Exercicio 9
 CREATE OR REPLACE FUNCTION Ranking_Livros_Mais_Vendidos(p_mes INTEGER, p_ano INTEGER)
 RETURNS TABLE (
