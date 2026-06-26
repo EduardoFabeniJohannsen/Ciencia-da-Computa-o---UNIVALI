@@ -25,6 +25,14 @@ public:
     void listarDiretorio();
 
     void voltarDiretorio();
+
+    void criarArquivo();
+
+    void escreverArquivo();
+
+    void lerArquivo();
+
+    void listarArquivos();
 };
 
 #endif
