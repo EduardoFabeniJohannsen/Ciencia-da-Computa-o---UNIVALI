@@ -1,5 +1,3 @@
-// main.cpp
-
 #include <iostream>
 #include "SistemaArquivos.h"
 
@@ -20,7 +18,7 @@ int main() {
 
         sistema.executar(opcao);
 
-    } while (opcao != 0);
+    } while(opcao != 0);
 
     return 0;
 }
