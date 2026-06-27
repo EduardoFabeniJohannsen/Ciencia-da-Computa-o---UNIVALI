@@ -14,7 +14,7 @@ public:
 
     string conteudo;
 
-    Arquivo(string nome);
+    Arquivo(string nome, string dono);
 };
 
 #endif

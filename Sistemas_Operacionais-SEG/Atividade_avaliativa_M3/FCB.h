@@ -21,6 +21,7 @@ struct FCB {
     string dono;
 
     int permissao;
+    int bloco;
 };
 
 #endif

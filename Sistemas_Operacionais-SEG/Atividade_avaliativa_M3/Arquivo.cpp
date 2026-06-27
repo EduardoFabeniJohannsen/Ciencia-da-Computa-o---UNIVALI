@@ -2,7 +2,7 @@
 
 static int proximoInode = 1;
 
-Arquivo::Arquivo(string nome) {
+Arquivo::Arquivo(string nome, string dono) {
 
     fcb.inode = proximoInode++;
 
@@ -14,7 +14,7 @@ Arquivo::Arquivo(string nome) {
 
     fcb.modificacao = time(nullptr);
 
-    fcb.dono = "admin";
+    fcb.dono = dono;
 
     fcb.permissao = 755;
 
