@@ -45,13 +45,18 @@ public class CapturaRecursosWeb {
                 StringBuffer sb = new StringBuffer();
                 while ((inputLine = in.readLine()) != null) sb.append(inputLine+"\n");
                 resposta = sb.toString();
-                resultado.add(resposta);
                 in.close();
             } catch (MalformedURLException ex) {
                 ex.printStackTrace();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+
+            // Adiciona sempre uma entrada por URL (mesmo vazia, em caso de
+            // falha), para manter o índice de "resultado" alinhado com o
+            // índice de "listaRecursos". Sem isso, se um site falhar, os
+            // resultados dos sites seguintes ficam deslocados.
+            resultado.add(resposta);
         }
         return resultado;
     }
