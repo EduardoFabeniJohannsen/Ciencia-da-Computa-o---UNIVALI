@@ -1,35 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package buscapadraoweb;
 
 import buscaweb.CapturaRecursosWeb;
 import java.util.ArrayList;
 
-/**
- * Este projeto foi adaptado a partir do original do professor (que
- * reconhecia números de dois dígitos) para reconhecer ENDEREÇOS IPv6
- * dentro do código HTML de uma página Web, utilizando um AFD
- * (Autômato Finito Determinístico) implementado "na mão" através de:
- *
- *   - um alfabeto (vetor de char),
- *   - um vetor de estados (vetor de String),
- *   - um estado inicial,
- *   - um vetor de estados finais,
- *   - uma matriz de transição (int[][]).
- *
- * A lógica de varredura do HTML (percorrer caractere a caractere, voltar
- * ao estado inicial quando não há transição, reconhecer a palavra
- * quando o estado anterior era final, e reprocessar o mesmo caractere
- * para continuar a busca) é EXATAMENTE a lógica do projeto original.
- * Só o alfabeto, os estados e a matriz de transição foram trocados
- * para reconhecer IPv6 em vez de números de dois dígitos.
- *
- * @author Santiago (adaptado)
- */
-public class Main {
+ class Main {
 
     // busca char em vetor e retorna indice
     public static int get_char_ref (char[] vet, char ref ){
@@ -61,25 +36,19 @@ public class Main {
         }
     }
 
-    // ------------------------------------------------------------------
-    // CATEGORIZAÇÃO DO ALFABETO
-    // ------------------------------------------------------------------
-    // Em vez de listar 22 caracteres (0-9, a-f, A-F) individualmente no
-    // alfabeto, usamos duas categorias de símbolo:
-    //   'H' -> dígito hexadecimal (0-9, a-f, A-F)
-    //   ':' -> dois-pontos (separador de grupo / abreviação)
-    // Isso mantém a matriz de transição pequena e legível, sem abandonar
-    // o mecanismo de matriz: a categorização só decide QUAL COLUNA da
-    // matriz usar; quem decide se há transição e para onde ir continua
-    // sendo exclusivamente a matriz.
-    public static char categoria(char c){
-        if ( (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') ){
-            return 'H'; // hex digit
-        } else if (c == ':'){
-            return ':'; // dois pontos
-        } else {
-            return '?'; // fora do alfabeto do IPv6 (não terá transição)
+    
+    public static void ligarHex(int[][] matriz, char[] alfabeto, int origem, int destino){
+        char[] hex = {'0','1','2','3','4','5','6','7','8','9',
+                       'a','b','c','d','e','f',
+                       'A','B','C','D','E','F'};
+        for (char c : hex){
+            matriz[origem][get_char_ref(alfabeto, c)] = destino;
         }
+    }
+
+    // liga o caractere ':' de um estado de origem para um estado de destino
+    public static void ligarDoisPontos(int[][] matriz, char[] alfabeto, int origem, int destino){
+        matriz[origem][get_char_ref(alfabeto, ':')] = destino;
     }
 
     /*
@@ -88,12 +57,9 @@ public class Main {
     public static void main(String[] args) {
         //instancia e usa objeto que captura código-fonte de páginas Web
         CapturaRecursosWeb crw = new CapturaRecursosWeb();
-        // >>> ALTERE AQUI OS SITES A SEREM CONSULTADOS <<<
-        // Adicione ou remova chamadas .add(...) para consultar mais ou
-        // menos páginas.
         crw.getListaRecursos().add("https://tecnoblog.net/responde/o-que-e-ipv6-saiba-para-que-serve-e-as-diferencas-para-o-protocolo-ipv4/");
         crw.getListaRecursos().add("https://learn.microsoft.com/pt-br/dotnet/fundamentals/networking/ipv6-overview");
-        crw.getListaRecursos().add("https://www.juniper.net/documentation/br/pt/software/junos/routing-overview/topics/concept/ipv6-technology-overview.html");
+        crw.getListaRecursos().add("https://www.juniper.net/documentation/br/pt/software/junos/routing-overview/topics/concept/ipv6-technology-overview.");
         ArrayList<String> listaURLs = crw.getListaRecursos();
         ArrayList<String> listaCodigos = crw.carregarRecursos();
 
@@ -101,12 +67,33 @@ public class Main {
         // MONTAGEM DO AFD DE IPv6
         // ================================================================
 
-        //mapa do alfabeto: 2 colunas -> 'H' (hex) e ':' (dois pontos)
-        char[] alfabeto = new char[2];
-        alfabeto[0] = 'H';
-        alfabeto[1] = ':';
-        int colH = get_char_ref(alfabeto, 'H');
-        int colC = get_char_ref(alfabeto, ':');
+        //mapa do alfabeto: os caracteres reais válidos em um IPv6
+        // do alfabeto, usado depois com get_char_ref, igual ao exemplo
+        // dele com '0'..'9')
+        char[] alfabeto = new char[23];
+        alfabeto[0] = '0';
+        alfabeto[1] = '1';
+        alfabeto[2] = '2';
+        alfabeto[3] = '3';
+        alfabeto[4] = '4';
+        alfabeto[5] = '5';
+        alfabeto[6] = '6';
+        alfabeto[7] = '7';
+        alfabeto[8] = '8';
+        alfabeto[9] = '9';
+        alfabeto[10] = 'a';
+        alfabeto[11] = 'b';
+        alfabeto[12] = 'c';
+        alfabeto[13] = 'd';
+        alfabeto[14] = 'e';
+        alfabeto[15] = 'f';
+        alfabeto[16] = 'A';
+        alfabeto[17] = 'B';
+        alfabeto[18] = 'C';
+        alfabeto[19] = 'D';
+        alfabeto[20] = 'E';
+        alfabeto[21] = 'F';
+        alfabeto[22] = ':';
 
         // ----------------------------------------------------------------
         // ESTADOS
@@ -213,25 +200,26 @@ public class Main {
         // ----------------------------------------------------------------
         // matriz[estado][coluna] -> próximo estado, ou -1 se não há
         // transição válida (o que faz o autômato "resetar" na varredura).
-        int[][] matriz = new int[estados.length][2];
+        int[][] matriz = new int[estados.length][alfabeto.length];
         for (int[] linha : matriz){
-            linha[0] = -1;
-            linha[1] = -1;
+            for (int j = 0; j < linha.length; j++){
+                linha[j] = -1;
+            }
         }
 
         // --- Transições a partir do estado inicial q0_h0 ---
-        matriz[get_string_ref(estados, "q0_h0")][colH] = get_string_ref(estados, "q0_h1");
-        matriz[get_string_ref(estados, "q0_h0")][colC] = get_string_ref(estados, "q0_c"); // permite "::1" etc.
+        ligarHex(matriz, alfabeto, get_string_ref(estados, "q0_h0"), get_string_ref(estados, "q0_h1"));
+        ligarDoisPontos(matriz, alfabeto, get_string_ref(estados, "q0_h0"), get_string_ref(estados, "q0_c")); // permite "::1" etc.
 
         // --- Família SEM abreviação: dentro de um grupo (q{n}_h{k}) ---
         for (int n = 0; n <= 7; n++){
             for (int k = 1; k <= 4; k++){
                 int origem = get_string_ref(estados, "q" + n + "_h" + k);
                 if (k < 4){
-                    matriz[origem][colH] = get_string_ref(estados, "q" + n + "_h" + (k+1));
+                    ligarHex(matriz, alfabeto, origem, get_string_ref(estados, "q" + n + "_h" + (k+1)));
                 }
                 if (n <= 6){
-                    matriz[origem][colC] = get_string_ref(estados, "q" + (n+1) + "_c");
+                    ligarDoisPontos(matriz, alfabeto, origem, get_string_ref(estados, "q" + (n+1) + "_c"));
                 }
             }
         }
@@ -239,14 +227,14 @@ public class Main {
         // --- Família SEM abreviação: "leu ':' após n grupos" (q{n}_c) ---
         for (int n = 0; n <= 7; n++){
             int origem = get_string_ref(estados, "q" + n + "_c");
-            matriz[origem][colH] = get_string_ref(estados, "q" + n + "_h1");
-            matriz[origem][colC] = get_string_ref(estados, "qcc" + n); // forma "::"
+            ligarHex(matriz, alfabeto, origem, get_string_ref(estados, "q" + n + "_h1"));
+            ligarDoisPontos(matriz, alfabeto, origem, get_string_ref(estados, "qcc" + n)); // forma "::"
         }
 
         // --- "leu '::' com m grupos antes" (qcc{m}) : só aceita hex ---
         for (int m = 0; m <= 7; m++){
             int origem = get_string_ref(estados, "qcc" + m);
-            matriz[origem][colH] = get_string_ref(estados, "qA" + m + "_0_h1");
+            ligarHex(matriz, alfabeto, origem, get_string_ref(estados, "qA" + m + "_0_h1"));
             // ':' aqui não tem transição (evita ":::" / segunda abreviação)
         }
 
@@ -256,10 +244,10 @@ public class Main {
                 for (int k = 1; k <= 4; k++){
                     int origem = get_string_ref(estados, "qA" + m + "_" + n + "_h" + k);
                     if (k < 4){
-                        matriz[origem][colH] = get_string_ref(estados, "qA" + m + "_" + n + "_h" + (k+1));
+                        ligarHex(matriz, alfabeto, origem, get_string_ref(estados, "qA" + m + "_" + n + "_h" + (k+1)));
                     }
                     if (m + n <= 6){
-                        matriz[origem][colC] = get_string_ref(estados, "qAc" + m + "_" + n);
+                        ligarDoisPontos(matriz, alfabeto, origem, get_string_ref(estados, "qAc" + m + "_" + n));
                     }
                 }
             }
@@ -270,7 +258,7 @@ public class Main {
             for (int n = 0; n <= (7 - m); n++){
                 if (m + n <= 6){
                     int origem = get_string_ref(estados, "qAc" + m + "_" + n);
-                    matriz[origem][colH] = get_string_ref(estados, "qA" + m + "_" + (n+1) + "_h1");
+                    ligarHex(matriz, alfabeto, origem, get_string_ref(estados, "qA" + m + "_" + (n+1) + "_h1"));
                     // ':' aqui não tem transição (evita segunda abreviação)
                 }
             }
@@ -298,13 +286,6 @@ public class Main {
         }
     }
 
-    /**
-     * Percorre um texto usando o AFD (alfabeto, matriz, estados, estado
-     * inicial e estados finais) e retorna a lista de palavras
-     * reconhecidas. Esta é a MESMA lógica de varredura do projeto
-     * original (apenas extraída para um método, para poder reutilizá-la
-     * tanto na página baixada quanto nos testes).
-     */
     public static ArrayList<String> varrerComAFD(String texto, char[] alfabeto, int[][] matriz,
             String[] estados, String estado_inicial, String[] estados_finais){
 
@@ -316,9 +297,11 @@ public class Main {
         for (int i = 0; i < texto.length(); i++){
             estado_anterior = estado;
 
-            // traduz o caractere para a categoria do alfabeto ('H' ou ':')
-            char cat = categoria(texto.charAt(i));
-            estado = proximo_estado(alfabeto, matriz, estado, cat);
+            // consulta a matriz diretamente com o caractere lido
+            // (get_char_ref só encontra índice para os 23 símbolos do
+            // alfabeto; qualquer outro caractere do HTML retorna -1,
+            // exatamente como no autômato original do professor)
+            estado = proximo_estado(alfabeto, matriz, estado, texto.charAt(i));
 
             if (estado == -1){
                 estado = get_string_ref(estados, estado_inicial);
