@@ -51,9 +51,6 @@ import java.util.ArrayList;
         matriz[origem][get_char_ref(alfabeto, ':')] = destino;
     }
 
-    /*
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
         //instancia e usa objeto que captura código-fonte de páginas Web
         CapturaRecursosWeb crw = new CapturaRecursosWeb();
@@ -108,24 +105,29 @@ import java.util.ArrayList;
         //   (b) quantos dígitos hex já foram lidos no grupo ATUAL
         //   (c) se a abreviação "::" já ocorreu ou não, e quantos grupos
         //       vieram ANTES dela
-        //
+ 
         // Famílias de estados:
+
         //   q{n}_h{k}    -> SEM abreviação ainda; n grupos já fechados,
         //                   k hex lidos no grupo atual (k = 1..4)
+
         //   q{n}_c       -> SEM abreviação ainda; acabou de ler um ':'
         //                   logo após fechar n grupos (aguardando hex do
         //                   próximo grupo OU um segundo ':')
+
         //   qcc{m}       -> acabou de ler o SEGUNDO ':' (a abreviação
         //                   "::"), tendo m grupos fechados antes dela
+
         //   qA{m}_{n}_h{k} -> abreviação já usada (m grupos antes dela);
         //                   n grupos fechados DEPOIS da abreviação;
         //                   k hex lidos no grupo atual
+
         //   qAc{m}_{n}   -> abreviação já usada; acabou de ler um ':'
         //                   após fechar n grupos depois da abreviação
         //                   (aguardando hex do próximo grupo)
-        //
+        
         // Estado inicial: q0_h0 (nenhum grupo, nenhum hex lido, sem "::")
-        //
+        
         // Não existe transição para além de 8 grupos, e não existe
         // segunda abreviação "::" (isso é garantido pelos limites dos
         // laços abaixo, que simplesmente não criam essas transições).
