@@ -37,13 +37,7 @@ A ordem de execução segue esta lógica:
 
 Cada seção depende apenas das funções definidas na seção "Códigos base" e, em alguns casos, de funções definidas em seções anteriores (por exemplo, a Seção 5 reaproveita `convolucao_2d` para os filtros de borda e para o high-boost da Seção 6). Por isso, a forma mais segura de rodar é sempre do início ao fim, em sequência — usar **"Ambiente de execução → Executar tudo"** no menu do Colab é a opção mais prática depois de subir a pasta `FotosViel`.
 
-### 3. Testando com outra imagem (apresentação)
 
-Como o professor pode pedir para testar o processamento com qualquer imagem durante a apresentação, basta:
-
-1. Subir a nova imagem para dentro da pasta `FotosViel` (ou para `/content/FotosViel` diretamente);
-2. Trocar o nome do arquivo na célula de teste da seção correspondente (por exemplo, trocar `"barbara.jpg"` por outro nome de arquivo);
-3. Rodar novamente a célula (e, se a imagem for colorida/tons de cinza diferente do esperado, ajustar o parâmetro `colorida=True/False` em `carregar_imagem`).
 
 ## Estrutura do notebook
 
