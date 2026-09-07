@@ -8,7 +8,7 @@ Autores: Eduardo F. Johannsen e Kauan D. Leal
 ## Como rodar o notebook no Google Colab
 ### 1. Subir a pasta de imagens
 
-Antes de rodar qualquer célula, faça upload da pasta **`FotosViel`** (contendo todas as imagens do dataset: `lena.jpg`, `lena1.jpg`, `lena2.jpg`, `lena3.jpg`, `cameraman.png`, `quantize.jpg`, `bell.jpg`, `cubes.png`, `barbara.jpg`, `sky.png`, `noir.png`, `fg.jpg`, `Clear.jpg`, `q7_2.jpg`, etc.) para dentro do ambiente do Colab.
+Antes de rodar qualquer célula, faça upload da pasta **`FotosViel`**
 
 No painel lateral esquerdo do Colab (ícone de pasta), clique em **"Fazer upload para o armazenamento da sessão"** e envie a pasta `FotosViel` inteira. Ela precisa ficar disponível no caminho:
 
